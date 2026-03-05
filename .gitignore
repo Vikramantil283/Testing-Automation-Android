@@ -8,3 +8,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# AI Test Agent
+ai_agent/.env
+ai_agent/reports/

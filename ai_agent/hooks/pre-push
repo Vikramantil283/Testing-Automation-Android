@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# AI Test Agent - pre-push hook
+# Automatically triggers on every `git push`
+# NEVER blocks the push (always exits 0)
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+AGENT_SCRIPT="$REPO_ROOT/ai_agent/ai_test_agent.py"
+
+# Read the branch being pushed from git's stdin
+# Format: <local ref> <local sha1> <remote ref> <remote sha1>
+while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
+    # Extract branch name from ref (refs/heads/branchname)
+    BRANCH="${local_ref#refs/heads/}"
+
+    # Skip if not a branch push (tags, etc.)
+    if [[ "$local_ref" == refs/heads/* ]]; then
+        echo "[AI Test Agent] Detected push of branch: $BRANCH"
+
+        # Run the agent in the background so it doesn't delay the push UI
+        # Output is shown after push completes
+        # Try common Python locations (including Windows paths not yet on PATH)
+        if command -v python3 &>/dev/null; then
+            PYTHON=python3
+        elif command -v python &>/dev/null; then
+            PYTHON=python
+        elif [[ -f "/c/Users/$USERNAME/AppData/Local/Programs/Python/Python312/python.exe" ]]; then
+            PYTHON="/c/Users/$USERNAME/AppData/Local/Programs/Python/Python312/python.exe"
+        elif [[ -f "/c/Users/$USERNAME/AppData/Local/Programs/Python/Python311/python.exe" ]]; then
+            PYTHON="/c/Users/$USERNAME/AppData/Local/Programs/Python/Python311/python.exe"
+        elif [[ -f "/c/Python312/python.exe" ]]; then
+            PYTHON="/c/Python312/python.exe"
+        else
+            echo "[AI Test Agent] WARNING: Python not found. Skipping test generation."
+            exit 0
+        fi
+
+        "$PYTHON" "$AGENT_SCRIPT" \
+            --branch "$BRANCH" \
+            --base main \
+            --project-root "$REPO_ROOT" &
+        AGENT_PID=$!
+
+        echo "[AI Test Agent] Running in background (PID: $AGENT_PID)"
+        echo "[AI Test Agent] Check ai_agent/reports/ for the HTML report after push completes."
+    fi
+done
+
+# Always allow the push
+exit 0
