@@ -12,3 +12,4 @@ local.properties
 # AI Test Agent
 ai_agent/.env
 ai_agent/reports/
+ai_agent/.last_run_sha
