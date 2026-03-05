@@ -1,5 +1,6 @@
 package com.example.unittestingproject
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,7 +11,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class OtpBottomSheetFragment : BottomSheetDialogFragment() {
@@ -35,18 +35,14 @@ class OtpBottomSheetFragment : BottomSheetDialogFragment() {
             view.findViewById(R.id.etOtp6)
         )
         val tvOtpError = view.findViewById<TextView>(R.id.tvOtpError)
-        val btnVerify = view.findViewById<Button>(R.id.btnVerifyOtp)
+        val btnVerify  = view.findViewById<Button>(R.id.btnVerifyOtp)
 
-        // Auto-advance to next box when a digit is entered,
-        // move back to previous box on backspace
         boxes.forEachIndexed { index, box ->
             box.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
                 override fun afterTextChanged(s: Editable?) {
                     if (s?.length == 1 && index < boxes.lastIndex) {
-                        // Post to next frame so the current key event fully completes
-                        // before focus moves — prevents double-typing into the next box
                         boxes[index + 1].post { boxes[index + 1].requestFocus() }
                     }
                 }
@@ -58,10 +54,7 @@ class OtpBottomSheetFragment : BottomSheetDialogFragment() {
                     && box.text.isEmpty()
                     && index > 0
                 ) {
-                    boxes[index - 1].apply {
-                        requestFocus()
-                        text?.clear()
-                    }
+                    boxes[index - 1].apply { requestFocus(); text?.clear() }
                     true
                 } else false
             }
@@ -72,12 +65,13 @@ class OtpBottomSheetFragment : BottomSheetDialogFragment() {
             val otp = boxes.joinToString("") { it.text.toString() }
             when (val result = otpValidator.verify(otp)) {
                 is OtpResult.Success -> {
-                    Toast.makeText(
-                        requireContext(),
-                        "OTP Verified! Login Successful!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    val email = arguments?.getString(ARG_EMAIL) ?: ""
                     dismiss()
+                    requireActivity().finish()
+                    val intent = Intent(requireContext(), DashboardActivity::class.java)
+                        .putExtra(DashboardActivity.EXTRA_EMAIL, email)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(intent)
                 }
                 is OtpResult.Error -> {
                     tvOtpError.text = result.message
@@ -86,7 +80,14 @@ class OtpBottomSheetFragment : BottomSheetDialogFragment() {
             }
         }
 
-        // Focus first box on open
         boxes[0].requestFocus()
+    }
+
+    companion object {
+        private const val ARG_EMAIL = "arg_email"
+
+        fun newInstance(email: String) = OtpBottomSheetFragment().apply {
+            arguments = Bundle().apply { putString(ARG_EMAIL, email) }
+        }
     }
 }

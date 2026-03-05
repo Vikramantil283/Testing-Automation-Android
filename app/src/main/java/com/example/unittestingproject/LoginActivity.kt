@@ -61,7 +61,7 @@ class LoginActivity : AppCompatActivity() {
 
         when (val result = validator.login(email, password)) {
             is LoginResult.Success -> {
-                OtpBottomSheetFragment()
+                OtpBottomSheetFragment.newInstance(email)
                     .show(supportFragmentManager, "OtpBottomSheet")
             }
             is LoginResult.Error -> {
