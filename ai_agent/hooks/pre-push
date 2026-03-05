@@ -1,65 +1,11 @@
 #!/usr/bin/env bash
 # AI Test Agent - pre-push hook
-# Automatically triggers on every `git push`
-# NEVER blocks the push (always exits 0)
+# Auto-run is DISABLED — agent only runs when you manually trigger it.
+#
+# To generate tests, run one of these after your task is done:
+#   Windows : ai_agent\run_agent.bat
+#   Git Bash: bash ai_agent/run_agent.sh
+#   Alias   : git test-gen
 
-REPO_ROOT="$(git rev-parse --show-toplevel)"
-AGENT_SCRIPT="$REPO_ROOT/ai_agent/ai_test_agent.py"
-
-# Read the branch being pushed from git's stdin
-# Format: <local ref> <local sha1> <remote ref> <remote sha1>
-while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
-    # Extract branch name from ref (refs/heads/branchname)
-    BRANCH="${local_ref#refs/heads/}"
-
-    # Skip if not a branch push (tags, etc.)
-    if [[ "$local_ref" == refs/heads/* ]]; then
-        echo "[AI Test Agent] Detected push of branch: $BRANCH"
-
-        # Add Ollama to PATH if installed in default Windows location
-        OLLAMA_DIR="/c/Users/$USERNAME/AppData/Local/Programs/Ollama"
-        if [[ -d "$OLLAMA_DIR" ]] && [[ ":$PATH:" != *":$OLLAMA_DIR:"* ]]; then
-            export PATH="$OLLAMA_DIR:$PATH"
-        fi
-
-        # Run the agent in the background so it doesn't delay the push UI
-        # Output is shown after push completes
-        # Resolve Python — prefer known real installations over Windows Store stubs
-        PYTHON=""
-        for CANDIDATE in \
-            "/c/Users/$USERNAME/AppData/Local/Programs/Python/Python312/python.exe" \
-            "/c/Users/$USERNAME/AppData/Local/Programs/Python/Python311/python.exe" \
-            "/c/Users/$USERNAME/AppData/Local/Programs/Python/Python310/python.exe" \
-            "/c/Python312/python.exe" \
-            "/c/Python311/python.exe"
-        do
-            if [[ -f "$CANDIDATE" ]]; then
-                PYTHON="$CANDIDATE"
-                break
-            fi
-        done
-        # Fall back to PATH only if no known install found
-        if [[ -z "$PYTHON" ]]; then
-            if command -v python3 &>/dev/null && python3 -c "import sys" &>/dev/null 2>&1; then
-                PYTHON=python3
-            elif command -v python &>/dev/null && python -c "import sys" &>/dev/null 2>&1; then
-                PYTHON=python
-            else
-                echo "[AI Test Agent] WARNING: Python not found. Skipping test generation."
-                exit 0
-            fi
-        fi
-
-        "$PYTHON" "$AGENT_SCRIPT" \
-            --branch "$BRANCH" \
-            --base main \
-            --project-root "$REPO_ROOT" &
-        AGENT_PID=$!
-
-        echo "[AI Test Agent] Running in background (PID: $AGENT_PID)"
-        echo "[AI Test Agent] Check ai_agent/reports/ for the HTML report after push completes."
-    fi
-done
-
-# Always allow the push
+# Always allow the push immediately
 exit 0
