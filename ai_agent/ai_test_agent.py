@@ -134,7 +134,7 @@ Generate a complete JUnit 4 unit test file in Kotlin for the class below.
    - These tests run on the JVM without an emulator
 3. Use JUnit 4 annotations: `@Test`, `@Before`, `@After`  (NOT JUnit 5 `@Test` from `org.junit.jupiter`)
 4. Class name: `{class_name}GeneratedTest`
-5. Test method names use Kotlin backtick syntax: `fun \`methodName - scenario description\`()`
+5. Test method names use Kotlin backtick syntax: fun `methodName - scenario description`()
 6. Cover: happy paths, edge cases, boundary values, null/blank inputs, every branch
 7. Output ONLY valid Kotlin code — no markdown fences, no explanation text
 {existing_section}

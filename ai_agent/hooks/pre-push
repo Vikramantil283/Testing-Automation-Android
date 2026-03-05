@@ -18,20 +18,30 @@ while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
 
         # Run the agent in the background so it doesn't delay the push UI
         # Output is shown after push completes
-        # Try common Python locations (including Windows paths not yet on PATH)
-        if command -v python3 &>/dev/null; then
-            PYTHON=python3
-        elif command -v python &>/dev/null; then
-            PYTHON=python
-        elif [[ -f "/c/Users/$USERNAME/AppData/Local/Programs/Python/Python312/python.exe" ]]; then
-            PYTHON="/c/Users/$USERNAME/AppData/Local/Programs/Python/Python312/python.exe"
-        elif [[ -f "/c/Users/$USERNAME/AppData/Local/Programs/Python/Python311/python.exe" ]]; then
-            PYTHON="/c/Users/$USERNAME/AppData/Local/Programs/Python/Python311/python.exe"
-        elif [[ -f "/c/Python312/python.exe" ]]; then
-            PYTHON="/c/Python312/python.exe"
-        else
-            echo "[AI Test Agent] WARNING: Python not found. Skipping test generation."
-            exit 0
+        # Resolve Python — prefer known real installations over Windows Store stubs
+        PYTHON=""
+        for CANDIDATE in \
+            "/c/Users/$USERNAME/AppData/Local/Programs/Python/Python312/python.exe" \
+            "/c/Users/$USERNAME/AppData/Local/Programs/Python/Python311/python.exe" \
+            "/c/Users/$USERNAME/AppData/Local/Programs/Python/Python310/python.exe" \
+            "/c/Python312/python.exe" \
+            "/c/Python311/python.exe"
+        do
+            if [[ -f "$CANDIDATE" ]]; then
+                PYTHON="$CANDIDATE"
+                break
+            fi
+        done
+        # Fall back to PATH only if no known install found
+        if [[ -z "$PYTHON" ]]; then
+            if command -v python3 &>/dev/null && python3 -c "import sys" &>/dev/null 2>&1; then
+                PYTHON=python3
+            elif command -v python &>/dev/null && python -c "import sys" &>/dev/null 2>&1; then
+                PYTHON=python
+            else
+                echo "[AI Test Agent] WARNING: Python not found. Skipping test generation."
+                exit 0
+            fi
         fi
 
         "$PYTHON" "$AGENT_SCRIPT" \
