@@ -1,2 +1,2 @@
-anthropic>=0.40.0
-python-dotenv>=1.0.0
+# No packages required — agent uses Python stdlib (urllib, json, xml, subprocess)
+# Ollama runs locally: https://ollama.com/download

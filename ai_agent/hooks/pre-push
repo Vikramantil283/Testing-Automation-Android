@@ -16,6 +16,12 @@ while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
     if [[ "$local_ref" == refs/heads/* ]]; then
         echo "[AI Test Agent] Detected push of branch: $BRANCH"
 
+        # Add Ollama to PATH if installed in default Windows location
+        OLLAMA_DIR="/c/Users/$USERNAME/AppData/Local/Programs/Ollama"
+        if [[ -d "$OLLAMA_DIR" ]] && [[ ":$PATH:" != *":$OLLAMA_DIR:"* ]]; then
+            export PATH="$OLLAMA_DIR:$PATH"
+        fi
+
         # Run the agent in the background so it doesn't delay the push UI
         # Output is shown after push completes
         # Resolve Python — prefer known real installations over Windows Store stubs
