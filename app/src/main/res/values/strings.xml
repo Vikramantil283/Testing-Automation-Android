@@ -5,4 +5,11 @@
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
     <string name="btn_login">Login</string>
+    <string name="tv_forgot_password">Forgot Password?</string>
+    <string name="dialog_forgot_title">Reset Password</string>
+    <string name="dialog_forgot_message">Enter your email address and we\'ll send you your password.</string>
+    <string name="dialog_forgot_hint">Email address</string>
+    <string name="dialog_forgot_send">Send</string>
+    <string name="dialog_forgot_cancel">Cancel</string>
+    <string name="toast_password_sent">Password has been sent to your email</string>
 </resources>

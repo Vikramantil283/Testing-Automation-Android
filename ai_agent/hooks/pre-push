@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# AI Test Agent - pre-push hook
+# Auto-run is DISABLED — agent only runs when you manually trigger it.
+#
+# To generate tests, run one of these after your task is done:
+#   Windows : ai_agent\run_agent.bat
+#   Git Bash: bash ai_agent/run_agent.sh
+#   Alias   : git test-gen
+
+# Always allow the push immediately
+exit 0

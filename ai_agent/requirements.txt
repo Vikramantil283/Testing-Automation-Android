@@ -1,0 +1,2 @@
+# No packages required — agent uses Python stdlib (urllib, json, xml, subprocess)
+# Ollama runs locally: https://ollama.com/download
