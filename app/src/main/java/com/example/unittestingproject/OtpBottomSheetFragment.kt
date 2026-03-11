@@ -32,7 +32,7 @@ class OtpBottomSheetFragment : BottomSheetDialogFragment() {
             view.findViewById(R.id.etOtp3),
             view.findViewById(R.id.etOtp4),
             view.findViewById(R.id.etOtp5),
-            view.findViewById(R.id.etOtp6)
+            view.findViewById<EditText>(R.id.etOtp6)
         )
         val tvOtpError = view.findViewById<TextView>(R.id.tvOtpError)
         val btnVerify  = view.findViewById<Button>(R.id.btnVerifyOtp)

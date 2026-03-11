@@ -13,3 +13,4 @@ local.properties
 ai_agent/.env
 ai_agent/reports/
 ai_agent/.last_run_sha
+ai_agent/ollama_server.txt
